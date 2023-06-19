@@ -1,0 +1,22 @@
+version: '3'
+services:
+  nginx:
+    build:
+      context: ./requirements/nginx
+      dockerfile: ./Dockerfile.nginx
+    # other NGINX service configuration
+
+  wordpress:
+    build:
+      context: ./requirements/wordpress
+      dockerfile: ./Dockerfile.wordpress
+    # other WordPress service configuration
+
+  mariadb:
+    build:
+      context: ./requirements/mariadb
+      dockerfile: ./Dockerfile.mariadb
+    # other MariaDB service configuration
+
+
+

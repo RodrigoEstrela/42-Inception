@@ -1,0 +1,11 @@
+FROM wordpress:latest
+
+# Install additional dependencies, if required
+# RUN apt-get update && apt-get install -y <package-name>
+
+# Copy custom PHP configuration, if required
+# COPY php.ini /usr/local/etc/php/conf.d/php.ini
+
+# Start php-fpm
+CMD ["php-fpm"]
+

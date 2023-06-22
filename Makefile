@@ -1,8 +1,8 @@
 # Variables
 DOCKER_COMPOSE := docker-compose -f srcs/docker-compose.yml
-NGINX_DOCKERFILE := srcs/requirements/nginx/Dockerfile.nginx
-WORDPRESS_DOCKERFILE := srcs/requirements/wordpress/Dockerfile.wordpress
-MARIADB_DOCKERFILE := srcs/requirements/mariadb/Dockerfile.mariadb
+NGINX_DOCKERFILE := srcs/requirements/nginx/Dockerfile
+WORDPRESS_DOCKERFILE := srcs/requirements/wordpress/Dockerfile
+MARIADB_DOCKERFILE := srcs/requirements/mariadb/Dockerfile
 
 # Build the Docker images
 build:

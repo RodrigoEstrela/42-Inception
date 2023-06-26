@@ -1,84 +1,55 @@
 version: '3'
-services:
- nginx:
-  build: ./requirements/nginx
-  container_name: nginx
-  image: nginx
-  ports:
-   - 80:80
-   - 443:443
-  networks:
-   - internal
-  volumes:
-   - wordpress:/var/www/html
-  depends_on:
-   - wordpress
-   - mariadb
-  restart: always
-  environment:
-   NG_WP_NAME: ${NG_WP_NAME}
-   WP_PORT: ${NG_WP_PORT}
-   DOMAIN_NAME: ${DOMAIN_NAME}
- wordpress:
-   build: ./requirements/wordpress
-   container_name: wordpress
-   image: wordpress
-   expose:
-    - ${NG_WP_PORT}
-   volumes:
-    - wordpress:/var/www/html
-   networks:
-    - internal
-   restart: always
-   environment:
-    DB: ${WP_DB_NAME}
-    DBUSER: ${MDB_USER_NAME}
-    DB_PWD: ${MDB_ROOT_PWD}
-    DB_HOST: ${MDB_HOST}
-    ADMIN: ${WP_DB_USR}
-    ADMINPWD: ${WP_DB_PWD}
-    ADMINEMAIL: ${WP_ADMIN_EMAIL}
-    WP_TITLE: ${WP_TITLE}
-    DOMAIN_NAME: ${DOMAIN_NAME}
-    WP_USER_LOGIN: ${WP_USER_LOGIN}
-    WP_USER_PWD: ${WP_USER_PWD}
-    WP_USER_EMAIL: ${WP_USER_EMAIL}
- mariadb:
-  build: ./requirements/mariadb
-  container_name: mariadb
-  image: mariadb
-  hostname: mariadb
-  expose:
-   - 3306
-  volumes:
-   - db:/var/lib/mysql
-  networks:
-   - internal
-  restart: on-failure
-  init: true
-  environment:
-   WP_DB_NAME: ${WP_DB_NAME}
-   MDB_HOST: ${MDB_HOST}
-   MDB_PORT: ${MDB_PORT}
-   MDB_USER_NAME: ${MDB_USER_NAME}
-   MARIADB_USER_PWD:  ${MDB_USER_PWD}
-   MARIADB_ROOT_PWD:  ${MDB_ROOT_PWD}
 
-volumes:
- db:
-  name: db
-  driver: local
-  driver_opts:
-   type: none
-   device: /home/${USER}/data/
-   o: bind
- wordpress:
-  name: wp
-  driver: local
-  driver_opts:
-   type: none
-   device: /home/${USER}/data/
-   o: bind
+services:
+  nginx:
+    build:
+      context: ./requirements/nginx
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - '443:443'
+    depends_on:
+      - wordpress
+    networks:
+      - app_network
+
+  wordpress:
+    build:
+      context: ./requirements/wordpress
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - ./data/wordpress:/var/www/html
+    environment:
+      - WORDPRESS_DB_HOST=mariadb
+      - WORDPRESS_DB_USER=${MYSQL_USER}
+      - WORDPRESS_DB_PASSWORD=${MYSQL_PASSWORD}
+      - WORDPRESS_DB_NAME=wordpress
+    networks:
+      - app_network
+
+  mariadb:
+    build:
+      context: ./requirements/mariadb
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - ./data/mariadb:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=wordpress
+    networks:
+      - app_network
+    ports:
+      - 3306:3306
 
 networks:
- internal:
+  app_network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/16
+

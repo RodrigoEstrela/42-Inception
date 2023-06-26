@@ -1,21 +1,17 @@
-FROM debian:10.11
+# Use Debian 11 as the base image
+FROM debian:11
 
-RUN apt-get update -yq
+# Install Nginx and other dependencies
+RUN apt-get update && apt-get install -y nginx
 
-RUN apt-get install nano -yq
-RUN apt-get install nginx -yq
-RUN apt-get install openssl -yq
-RUN apt-get install gettext-base -yq
-RUN ln -sf /usr/share/zoneinfo/Europe/Lisbon /etc/localtime
-RUN mkdir -p /etc/nginx/ssl
-RUN openssl req -new -x509 -days 365 -nodes \
--out /etc/nginx/ssl/rdas-nev.pem \
--keyout /etc/nginx/ssl/rdas-nev.key \
--subj "/C=PT/ST=Lisbon/L=Lisbon/O=42Lisboa/OU=42Lisboa-/CN=rdas-nev.42.fr/"
-RUN chmod 600 /etc/nginx/ssl/rdas-nev*
+# Copy custom Nginx configuration file
+COPY ./conf/nginx.conf /etc/nginx/nginx.conf
+COPY ./tools/nginx.crt /etc/nginx/nginx.crt
+COPY ./tools/nginx.key /etc/nginx/nginx.key
+# Expose ports
+EXPOSE 80
+EXPOSE 443
 
-# Copy NGINX configuration files
-COPY /tools/ /tmp/
-COPY /conf/nginxconf /nginxconf
+# Start Nginx
+CMD ["nginx", "-g", "daemon off;"]
 
-ENTRYPOINT ["sh", "-c", "/bin/bash /tmp/run.sh"]

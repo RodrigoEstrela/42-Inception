@@ -1,26 +1,24 @@
 FROM debian:11
 
-RUN rm -rf /home/rdas-nev/data/mariadb/ibdata1
-# Install MariaDB server
-RUN apt-get update && apt-get install -y mariadb-server
+RUN apt-get update && apt-get install -y \
+	mariadb-server \
+	&& rm -rf /var/lib/apt/lists/*
 
-# Copy the MariaDB configuration files
-COPY conf/* /etc/mysql/conf.d/
+RUN mkdir -p /var/run/mysqld \
+	&& chown -R mysql:mysql /var/run/mysqld \
+	&& chmod 777 /var/run/mysqld
 
-# Set the environment variables for MariaDB
-ENV MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-ENV MYSQL_USER=${MYSQL_USER}
-ENV MYSQL_PASSWORD=${MYSQL_PASSWORD}
-ENV MYSQL_DATABASE=${DB_NAME}
+COPY tools/mariadb-entrypoint.sh /usr/bin/mariadb-entrypoint.sh
+COPY tools/installation-script /usr/bin/installation-script
 
-# Create directories and set permissions
-RUN mkdir -p /var/lib/mysql /var/run/mysqld && \
-    chown -R mysql:mysql /var/lib/mysql /var/run/mysqld && \
-    chmod 777 /var/run/mysqld
+RUN chmod +x /usr/bin/installation-script
+RUN chmod +x /usr/bin/mariadb-entrypoint.sh
 
-# Expose the MySQL port
+COPY conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
+COPY conf/wordpress.sql /opt/wordpress.sql
+
 EXPOSE 3306
 
-# Start MariaDB service
-CMD ["mysqld"]
+ENTRYPOINT [ "/usr/bin/mariadb-entrypoint.sh" ]
 
+CMD ["mysqld"]

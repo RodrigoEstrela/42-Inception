@@ -29,7 +29,6 @@ ssl:
 		mv nginx.crt srcs/requirements/nginx/tools/; \
 	fi
 
-
 # Build individual Docker images
 build-nginx:
 	docker build -t my-nginx -f $(NGINX_DOCKERFILE) srcs/requirements/nginx

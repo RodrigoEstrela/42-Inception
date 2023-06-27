@@ -2,10 +2,13 @@ version: '3'
 
 services:
   nginx:
+    container_name: rdas-nev_nginx
     build:
       context: ./requirements/nginx
       dockerfile: Dockerfile
     restart: always
+    volumes:
+      - wp:/var/www/html
     ports:
       - '443:443'
     depends_on:
@@ -14,12 +17,13 @@ services:
       - app_network
 
   wordpress:
+    container_name: rdas-nev_wordpress
     build:
       context: ./requirements/wordpress
       dockerfile: Dockerfile
     restart: always
     volumes:
-      - ./data/wordpress:/var/www/html
+      - wp:/var/www/html
     environment:
       - WORDPRESS_DB_HOST=mariadb
       - WORDPRESS_DB_USER=${MYSQL_USER}
@@ -29,6 +33,7 @@ services:
       - app_network
 
   mariadb:
+    container_name: rdas-nev_mariadb
     build:
       context: ./requirements/mariadb
       dockerfile: Dockerfile
@@ -52,4 +57,12 @@ networks:
       driver: default
       config:
         - subnet: 172.28.0.0/16
+
+volumes:
+  wp:
+    driver: local
+    driver_opts:
+      device: /root/wordpress
+      o: bind
+      type: none
 

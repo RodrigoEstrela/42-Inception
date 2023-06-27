@@ -3,9 +3,9 @@ FROM debian:11
 
 # Install Nginx and other dependencies
 RUN apt-get update && apt-get install -y nginx
-
+RUN apt-get install -y vim
 # Copy custom Nginx configuration file
-COPY ./conf/nginx.conf /etc/nginx/nginx.conf
+COPY ./conf/nginx.conf /etc/nginx/sites-available/default
 COPY ./tools/nginx.crt /etc/nginx/nginx.crt
 COPY ./tools/nginx.key /etc/nginx/nginx.key
 # Expose ports

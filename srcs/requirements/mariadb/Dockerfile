@@ -1,24 +1,26 @@
 FROM debian:11
 
-RUN apt-get update && apt-get install -y \
-	mariadb-server \
-	&& rm -rf /var/lib/apt/lists/*
-
+RUN apt-get update && \
+    apt-get -y install \
+        gettext-base \
+        mariadb-server \
+	mariadb-client \
+        procps \
+        vim
 RUN mkdir -p /var/run/mysqld \
-	&& chown -R mysql:mysql /var/run/mysqld \
-	&& chmod 777 /var/run/mysqld
+  && chown -R mysql:mysql /var/run/mysqld
 
-COPY tools/mariadb-entrypoint.sh /usr/bin/mariadb-entrypoint.sh
-COPY tools/installation-script /usr/bin/installation-script
+COPY ./conf/my.cnf /my.cnf.tmpl
 
-RUN chmod +x /usr/bin/installation-script
-RUN chmod +x /usr/bin/mariadb-entrypoint.sh
+RUN chmod 744 /my.cnf.tmpl
 
-COPY conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
-COPY conf/wordpress.sql /opt/wordpress.sql
+RUN mv /my.cnf.tmpl /etc/mysql/my.cnf
 
-EXPOSE 3306
+COPY ./conf/tmpl.sql /tmpl.sql
 
-ENTRYPOINT [ "/usr/bin/mariadb-entrypoint.sh" ]
+COPY ./tools/run.sh /run.sh
 
-CMD ["mysqld"]
+VOLUME [ "/sys/fs/cgroup" ]
+
+ENTRYPOINT [ "bash", "/run.sh" ]
+#CMD [ "mysqld_safe" ]

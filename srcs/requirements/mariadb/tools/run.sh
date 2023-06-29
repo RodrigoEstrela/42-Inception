@@ -1,18 +1,29 @@
-#!/bin/bash
+#!/bin/sh
+
+SETUP='/init.sql'
+
+# Check if database `mysql` has already been created
+if [ ! -d "/var/lib/mysql/mysql" ]; then
+
+    # Initialize the MySQL database tables and create the necessary files in the
+    # specified data directory with the specified MySQL user and based directory.
+    echo "Install mariadb for the first time"
+    mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql
+
+fi
+
+# Hydrate configuration template with env variables
+echo "Setup initial file with env variables"
+cat tmpl.sql | envsubst > ${SETUP}
+
+# Execute the daemon as the "mysql" user, using the specified data directory,
+# port, and initial file, and passes all arguments ($@) to it
+# sudo chown -R mysql:mysql /var/lib/mysql/wordpress
+
+echo "Start mysql daemon to receive arguments"
+exec mysqld --user=mysql --datadir="/var/lib/mysql" --port=3306 --init-file ${SETUP} $@
 
 
 
-service mysql start 
-
-
-echo "CREATE DATABASE IF NOT EXISTS '$MDB_WP_NAME' ;" > $MDB_WP_NAME
-echo "CREATE USER IF NOT EXISTS '$MDB_USER_NAME'@'%' IDENTIFIED BY '$MDB_USERPWD' ;" >> $MDB_WP_NAME
-echo "GRANT ALL PRIVILEGES ON $MDB_WP_NAME.* TO '$MDB_USER_NAME'@'%' ;" >> $MDB_WP_NAME
-echo "ALTER USER 'root'@'localhost' IDENTIFIED BY 'inception123' ;" >> $MDB_WP_NAME
-echo "FLUSH PRIVILEGES;" >> $MDB_WP_NAME
-
-mysql < $MDB_WP_NAME
-
-kill $(cat /var/run/mysqld/mysqld.pid)
-
-mysqld
+# Check if mysql is root protected
+# docker exec -it mariadb sh

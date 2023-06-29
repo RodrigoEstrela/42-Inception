@@ -2,10 +2,12 @@ version: '3'
 
 services:
   nginx:
+    hostname: rdas-nev.42.fr
     container_name: rdas-nev_nginx
     build:
       context: ./requirements/nginx
       dockerfile: Dockerfile
+    image: nginx
     restart: always
     volumes:
       - wp:/var/www/html
@@ -13,56 +15,48 @@ services:
       - '443:443'
     depends_on:
       - wordpress
-    networks:
-      - app_network
 
   wordpress:
     container_name: rdas-nev_wordpress
     build:
       context: ./requirements/wordpress
       dockerfile: Dockerfile
+    image: wordpress
     restart: always
     volumes:
       - wp:/var/www/html
-    environment:
-      - WORDPRESS_DB_HOST=mariadb
-      - WORDPRESS_DB_USER=${MYSQL_USER}
-      - WORDPRESS_DB_PASSWORD=${MYSQL_PASSWORD}
-      - WORDPRESS_DB_NAME=wordpress
-    networks:
-      - app_network
+    env_file:
+      - .env
 
   mariadb:
     container_name: rdas-nev_mariadb
     build:
       context: ./requirements/mariadb
       dockerfile: Dockerfile
+    image: mariadb
+    expose:
+     - 3306
     restart: always
     volumes:
-      - ./data/mariadb:/var/lib/mysql
-    environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-      - MYSQL_DATABASE=wordpress
-    networks:
-      - app_network
-    ports:
-      - 3306:3306
+      - ./db:/var/lib/mysql
+    env_file:
+      - .env
 
 networks:
-  app_network:
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.28.0.0/16
+    default:
+      name: rdas-nev_inception
 
 volumes:
   wp:
     driver: local
     driver_opts:
       device: /root/wordpress
+      o: bind
+      type: none
+  db:
+    driver: local
+    driver_opts:
+      device: /root/database
       o: bind
       type: none
 

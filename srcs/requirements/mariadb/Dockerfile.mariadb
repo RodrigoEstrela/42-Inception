@@ -1,8 +1,0 @@
-FROM mariadb:latest
-
-# Copy custom MariaDB configuration, if required
-# COPY my.cnf /etc/mysql/conf.d/my.cnf
-
-# Start MariaDB
-CMD ["mysqld"]
-

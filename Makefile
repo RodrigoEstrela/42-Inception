@@ -29,16 +29,6 @@ ssl:
 		mv nginx.crt srcs/requirements/nginx/tools/; \
 	fi
 
-# Build individual Docker images
-build-nginx:
-	docker build -t my-nginx -f $(NGINX_DOCKERFILE) srcs/requirements/nginx
-
-build-wordpress:
-	docker build -t my-wordpress -f $(WORDPRESS_DOCKERFILE) srcs/requirements/wordpress
-
-build-mariadb:
-	docker build -t my-mariadb -f $(MARIADB_DOCKERFILE) srcs/requirements/mariadb
-
 # Default target when running 'make' command
 all: build
 

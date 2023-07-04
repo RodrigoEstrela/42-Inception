@@ -16,11 +16,8 @@ RUN chmod 744 /my.cnf.tmpl
 
 RUN mv /my.cnf.tmpl /etc/mysql/my.cnf
 
-COPY ./conf/tmpl.sql /tmpl.sql
-
 COPY ./tools/run.sh /run.sh
 
 VOLUME [ "/sys/fs/cgroup" ]
 
 ENTRYPOINT [ "bash", "/run.sh" ]
-#CMD [ "mysqld_safe" ]

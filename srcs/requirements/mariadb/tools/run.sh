@@ -12,9 +12,9 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
 
 fi
 
-# Hydrate configuration template with env variables
+# Populate configuration file with env variables
 echo "Setup initial file with env variables"
-cat tmpl.sql | envsubst > ${SETUP}
+cat  envsubst > ${SETUP}
 
 # Execute the daemon as the "mysql" user, using the specified data directory,
 # port, and initial file, and passes all arguments ($@) to it
@@ -23,7 +23,3 @@ cat tmpl.sql | envsubst > ${SETUP}
 echo "Start mysql daemon to receive arguments"
 exec mysqld --user=mysql --datadir="/var/lib/mysql" --port=3306 --init-file ${SETUP} $@
 
-
-
-# Check if mysql is root protected
-# docker exec -it mariadb sh

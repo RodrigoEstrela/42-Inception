@@ -41,19 +41,6 @@ services:
       - db:/var/lib/mysql
     env_file:
       - .env
-    environment:
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DB_HOST: rdas-nev_mariadb
-      ADMIN_USER: ${ADMIN_LOGIN}
-      ADMIN_PASSWORD: ${ADMIN_PWD}
-      ADMIN_EMAIL: ${ADMIN_EMAIL}
-      WP_TITLE: ${WP_TITLE}
-      DOMAIN_NAME: ${DOMAIN_NAME}
-      WP_USER_LOGIN: ${USER_LOGIN}
-      WP_USER_EMAIL: ${USER_EMAIL}
-      WP_USER_PASS: ${USER_PASSWORD}
 networks:
     default:
       name: rdas-nev_inception
@@ -63,14 +50,14 @@ volumes:
     name: wp
     driver: local
     driver_opts:
-      device: /root/wordpress
+      device: /home/rdas-nev/data
       o: bind
       type: none
   db:
     name: db
     driver: local
     driver_opts:
-      device: /root/database
+      device: /home/rdas-nev/data
       o: bind
       type: none
 
